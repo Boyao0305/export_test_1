@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Platform, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { SmsApi } from '@data/api/SmsApi';
 import { useTheme } from '@hooks/useTheme';
 import { RootState } from '@data/repository/store';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  designTokensColors,
+  radius,
+  shadows,
+  spacing,
+  typography,
+} from '../../constants/designTokens';
 
 const { width, height } = Dimensions.get('window');
+const c = designTokensColors;
+const r = radius;
+const sh = shadows;
+const s = spacing;
+const t = typography;
 
 export default function ChangePhoneScreen() {
   const [newPhoneNumber, setNewPhoneNumber] = useState('');
@@ -66,143 +80,193 @@ export default function ChangePhoneScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}> 
-      <View style={styles.content}>
-        {/* Title Section */}
-        <View style={styles.titleSection}>
-          <Text style={styles.title}>修改手机号</Text>
-          <Text style={styles.subtitle}>请输入新的手机号码，我们将发送验证码进行验证。</Text>
+    <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel="返回"
+        onPress={() => router.back()}
+        style={styles.backArrowAbs}
+        activeOpacity={0.7}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
+      </TouchableOpacity>
+
+      <View style={[styles.headerWrap, { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border }]}>
+        <View style={styles.backBtnPlaceholder} />
+        <View style={styles.headerTitleWrap}>
+          <Text style={styles.headerTitle}>修改手机号</Text>
         </View>
-        {error ? (
-          <Text style={styles.error}>{error}</Text>
-        ) : null}
-        {/* Phone Number Input */}
-        <View style={styles.inputSection}>
-          <View style={styles.inputLabel}>
-            <Text style={styles.labelText}>PhoneNumber</Text>
-            <Text style={styles.labelText}>新手机号</Text>
-          </View>
-          <TextInput
-            value={newPhoneNumber}
-            onChangeText={setNewPhoneNumber}
-            mode="outlined"
-            style={styles.input}
-            contentStyle={[styles.inputContent, { fontSize: 14 }]}
-            outlineStyle={styles.inputOutline}
-            keyboardType="phone-pad"
-            maxLength={11}
-            placeholder="请输入11位手机号"
-            placeholderTextColor="#B0B0B0"
-          />
-        </View>
-        {/* Send Code Button */}
-        <Button
-          mode="contained"
-          onPress={handleSendVerificationCode}
-          style={styles.sendButton}
-          contentStyle={styles.sendButtonContent}
-          labelStyle={styles.sendButtonLabel}
-          loading={loading}
-          disabled={loading}
-        >
-          发送验证码
-        </Button>
-        {/* Go Back Button */}
-        <Button
-          mode="text"
-          onPress={() => router.back()}
-          style={styles.button}
-          labelStyle={{ color: '#838589' }}
-        >
-          返回
-        </Button>
+        <View style={styles.headerRightSpacer} />
       </View>
-    </ScrollView>
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>修改手机号</Text>
+              <Text style={styles.subtitle}>请输入新的手机号码，我们将发送验证码进行验证。</Text>
+            </View>
+
+            <View style={styles.inputSection}>
+              <Text style={styles.labelText}>新手机号</Text>
+              <TextInput
+                value={newPhoneNumber}
+                onChangeText={setNewPhoneNumber}
+                mode="outlined"
+                style={styles.input}
+                contentStyle={styles.inputContent}
+                outlineStyle={styles.inputOutline}
+                keyboardType="phone-pad"
+                maxLength={11}
+                placeholder="请输入11位手机号"
+                placeholderTextColor={c.placeholder}
+                textColor={c.textMain}
+              />
+            </View>
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <Button
+              mode="contained"
+              onPress={handleSendVerificationCode}
+              style={styles.sendButton}
+              contentStyle={styles.sendButtonContent}
+              labelStyle={styles.sendButtonLabel}
+              loading={loading}
+              disabled={loading}
+            >
+              发送验证码
+            </Button>
+
+            <Button
+              mode="text"
+              onPress={() => router.back()}
+              style={styles.secondaryBackBtn}
+              labelStyle={styles.secondaryBackLabel}
+              disabled={loading}
+            >
+              返回上一页
+            </Button>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1 },
+  backArrowAbs: { position: 'absolute', left: 16, top: 32, zIndex: 10 },
+  headerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: s.pageHorizontalWide,
+    paddingVertical: s.headerPaddingVertical,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  backBtnPlaceholder: { width: 44, height: 44 },
+  headerTitleWrap: { flex: 1, alignItems: 'center' },
+  headerTitle: {
+    fontSize: 14,
+    letterSpacing: t.letterSpacing.sectionLabel,
+    fontFamily: t.fontFamily.body,
+    color: c.textMain,
+    fontWeight: t.fontWeight.semibold,
+  },
+  headerRightSpacer: { width: 44 },
+
+  scroll: { flex: 1 },
   container: {
     flexGrow: 1,
-    backgroundColor: '#FFFBF8',
+    paddingHorizontal: s.pageHorizontalWide,
+    paddingTop: s.sectionVertical,
+    paddingBottom: s.sectionVerticalLarge,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: width * 0.12,
-    paddingTop: height * 0.20,
+  content: { flex: 1 },
+
+  card: {
+    backgroundColor: c.cardBg,
+    borderRadius: r.cardLarge,
+    borderWidth: 1,
+    borderColor: c.border,
+    padding: s.cardPadding,
+    ...sh.card,
   },
   titleSection: {
-    marginBottom: height * 0.04,
+    marginBottom: 14,
   },
   title: {
-    fontSize: 32,
-    fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
-    color: '#0C1A30',
-    fontWeight: 'bold',
-    marginBottom: height * 0.01,
-    textAlign: 'center',
+    fontSize: 20,
+    fontFamily: t.fontFamily.serifChinese,
+    color: c.textMain,
+    fontWeight: t.fontWeight.semibold,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
-    color: '#838589',
-    marginBottom: 24,
-    textAlign: 'center',
-    opacity: 0.7,
-  },
-  inputSection: {
-    marginBottom: height * 0.03,
-  },
-  inputLabel: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: height * 0.01,
-  },
-  labelText: {
     fontSize: 12,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
-    color: '#838589',
+    fontFamily: t.fontFamily.body,
+    color: c.textMuted,
+    lineHeight: 18,
+  },
+
+  inputSection: { marginTop: 10 },
+  labelText: {
+    fontSize: 10,
+    letterSpacing: t.letterSpacing.sectionLabel,
+    fontFamily: t.fontFamily.body,
+    color: c.textMuted,
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: '#EDEDED',
-    borderRadius: 12,
+    backgroundColor: c.wordCardTapBg,
+    borderRadius: r.card,
   },
   inputContent: {
-    paddingVertical: height * 0.015,
-    paddingHorizontal: width * 0.04,
+    paddingVertical: Platform.select({ ios: 10, android: 8, default: 10 }),
+    paddingHorizontal: 14,
+    fontSize: 14,
+    fontFamily: t.fontFamily.body,
   },
   inputOutline: {
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: r.card,
   },
+
+  error: {
+    color: '#B91C1C',
+    marginTop: 10,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: t.fontFamily.body,
+  },
+
   sendButton: {
-    backgroundColor: '#FC9B33',
-    borderRadius: 12,
-    marginTop: height * 0.02,
-    marginBottom: height * 0.03,
-    shadowColor: '#FC9B33',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    backgroundColor: c.primary,
+    borderRadius: r.button,
+    marginTop: 16,
+    ...sh.button,
   },
   sendButtonContent: {
-    paddingVertical: height * 0.013,
-    paddingHorizontal: width * 0.04,
+    paddingVertical: 10,
   },
   sendButtonLabel: {
-    color: 'white',
-    fontSize: 18,
-    fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
-    fontWeight: '700',
+    color: '#FFFFFF',
+    fontSize: 12,
+    letterSpacing: t.letterSpacing.buttonPrimary,
+    fontFamily: t.fontFamily.body,
+    fontWeight: t.fontWeight.semibold,
   },
-  button: {
-    marginTop: 8,
-  },
-  error: {
-    color: 'red',
-    marginBottom: 16,
-    textAlign: 'center',
-    fontSize: 14,
+
+  secondaryBackBtn: { marginTop: 10, alignSelf: 'center' },
+  secondaryBackLabel: {
+    color: c.textMuted,
+    fontSize: 11,
+    fontFamily: t.fontFamily.body,
   },
 });

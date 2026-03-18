@@ -9,11 +9,22 @@ import { Dimensions, Platform, ScrollView, StyleSheet, Text, View } from 'react-
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { Header } from '../components/Header';
 import LevelBar from '../components/LevelBar';
 import RadarChart from '../components/RadarChart';
+import {
+  designTokensColors,
+  radius,
+  shadows,
+  spacing,
+  typography,
+} from '../../constants/designTokens';
 
 const { width, height } = Dimensions.get('window');
+const c = designTokensColors;
+const r = radius;
+const sh = shadows;
+const s = spacing;
+const t = typography;
 
 export default function WordsPage() {
   const { theme } = useTheme();
@@ -232,14 +243,24 @@ export default function WordsPage() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <Header 
-        title="仝文馆"
-        showMenuButton={false}
-        showNotificationButton={false}
-      />
+      {/* Header (match MainPage top brand style) */}
+      <View
+        style={[
+          styles.headerWrap,
+          { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border },
+        ]}
+      >
+        <View style={styles.headerLeft}>
+          <View style={styles.headerTitleRow}>
+            <Text style={[styles.headerTitleSmall, styles.headerTitleChinese]}>{'仝文馆'}</Text>
+            <Text style={styles.headerSubtitleInline}>{' —— 沉浸语境，词自成章'}</Text>
+          </View>
+          <Text style={styles.headerSubtitleSmall}>VenTong</Text>
+          <View style={styles.headerDividerSmall} />
+        </View>
+      </View>
 
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Day Day up - Daily Progress Section */}
         {additional_information && (
           <>
@@ -281,8 +302,8 @@ export default function WordsPage() {
                       arcSweepAngle={270}
                       rotation={225}
                       lineCap="round"
-                      tintColor="#FC9B33"
-                      backgroundColor="#FFF7E6"
+                      tintColor={c.accent}
+                      backgroundColor={c.progressBg}
                       children={() => (
                         <Text style={styles.arcProgressPercentText}>{formatPercent(learningProportion)}</Text>
                       )}
@@ -469,6 +490,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: s.headerPaddingHorizontal,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  headerLeft: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+  },
+  headerTitleSmall: {
+    fontSize: 18,
+    fontWeight: t.fontWeight.bold,
+    color: c.primary,
+    fontFamily: t.fontFamily.serifChinese,
+  },
+  headerTitleChinese: {
+    fontStyle: 'italic',
+  },
+  headerSubtitleInline: {
+    fontSize: 10,
+    fontWeight: t.fontWeight.bold,
+    color: c.accent,
+    letterSpacing: 2,
+    fontFamily: t.fontFamily.body,
+  },
+  headerSubtitleSmall: {
+    fontSize: 11,
+    fontWeight: t.fontWeight.bold,
+    color: c.accent,
+    letterSpacing: 2,
+    marginTop: 2,
+  },
+  headerDividerSmall: {
+    width: 32,
+    height: 1,
+    backgroundColor: c.accent,
+    opacity: 0.3,
+    marginTop: 6,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -497,26 +565,35 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: s.bottomNavPaddingBottom * 2 + 60,
+  },
   titleSection: {
-    backgroundColor: '#FC9B33',
-    padding: width * 0.04,
-    margin: width * 0.04,
-    borderRadius: 5,
+    backgroundColor: c.primary,
+    paddingVertical: 14,
+    paddingHorizontal: s.pageHorizontal,
+    marginHorizontal: s.pageHorizontal,
+    marginTop: s.sectionVertical,
+    marginBottom: s.cardGap,
+    borderRadius: r.card,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    ...sh.card,
   },
   titleText: {
-    color: 'white',
+    color: c.cardBg,
     fontSize: 18,
-    fontFamily: Platform.select({ ios: 'Iowan Old Style', android: 'serif' }),
-    fontWeight: '700',
+    fontFamily: t.fontFamily.serif,
+    fontWeight: t.fontWeight.bold,
   },
   subtitleText: {
-    color: 'white',
-    fontSize: 15,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
-    fontWeight: '600',
+    color: c.cardBg,
+    fontSize: 12,
+    fontFamily: t.fontFamily.body,
+    fontWeight: t.fontWeight.semibold,
+    letterSpacing: 1.5,
+    opacity: 0.85,
   },
   dateSection: {
     paddingHorizontal: width * 0.04,
@@ -527,7 +604,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
     fontWeight: '600',
-    color: '#0C1A30',
+    color: c.primary,
     marginBottom: height * 0.005,
   },
   dateNote: {
@@ -542,7 +619,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#838589',
+    color: c.textMuted,
     fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
   },
   errorContainer: {
@@ -555,7 +632,7 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
   },
   wordsSection: {
-    paddingHorizontal: width * 0.04,
+    paddingHorizontal: s.pageHorizontal,
   },
   wordsSectionTitle: {
     fontSize: 16,
@@ -565,21 +642,20 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
   },
   wordItem: {
-    backgroundColor: 'white',
-    padding: width * 0.04,
-    marginBottom: height * 0.01,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    backgroundColor: c.cardBg,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: s.cardGap,
+    borderRadius: r.card,
+    borderWidth: 1,
+    borderColor: c.border,
+    ...sh.wordCard,
   },
   wordRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: height * 0.005,
+    marginBottom: 6,
   },
   wordInfoContainer: {
     flex: 1,
@@ -593,34 +669,35 @@ const styles = StyleSheet.create({
   },
   learningFactorLabel: {
     fontSize: 10,
-    color: '#999',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    color: c.textMuted,
+    fontFamily: t.fontFamily.body,
     marginBottom: 2,
+    letterSpacing: 1.5,
   },
   learningFactorValue: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#FC9B33',
-    fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
+    fontWeight: t.fontWeight.bold,
+    color: c.primary,
+    fontFamily: t.fontFamily.serif,
   },
   wordText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FAC880',
+    fontWeight: t.fontWeight.bold,
+    color: c.primary,
     marginRight: width * 0.02,
-    fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
+    fontFamily: t.fontFamily.serif,
   },
   phoneticText: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
     fontStyle: 'italic',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontFamily: t.fontFamily.body,
   },
   definitionText: {
     fontSize: 14,
-    color: '#333',
-    lineHeight: 18,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    color: c.textMain,
+    lineHeight: 20,
+    fontFamily: t.fontFamily.body,
   },
   noWordsContainer: {
     padding: width * 0.04,
@@ -629,35 +706,34 @@ const styles = StyleSheet.create({
   },
   noWordsText: {
     fontSize: 18,
-    color: '#838589',
+    color: c.textMuted,
     fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
     fontWeight: '600',
     marginBottom: height * 0.01,
   },
   noWordsSubtext: {
     fontSize: 14,
-    color: '#838589',
+    color: c.textMuted,
     fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
     textAlign: 'center',
   },
   dailyProgressSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    marginHorizontal: width * 0.04,
-    marginTop: height * 0.02,
-    marginBottom: height * 0.01,
-    paddingVertical: height * 0.015,
+    backgroundColor: c.cardBg,
+    borderRadius: r.cardLarge,
+    marginHorizontal: s.pageHorizontal,
+    marginTop: 0,
+    marginBottom: s.sectionVertical,
+    paddingTop: 16,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: c.border,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    ...sh.sophisticated,
   },
   dailyProgressTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FC9B33',
+    color: c.primary,
     marginBottom: 10,
     fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
   },
@@ -683,61 +759,68 @@ const styles = StyleSheet.create({
   arcProgressPercentText: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FC9B33',
+    color: c.primary,
     fontFamily: Platform.select({ ios: 'DM Sans', android: 'sans-serif' }),
   },
   arcProgressInfoContainer: {
-    marginTop: 4,
+    marginTop: 6,
     alignItems: 'center',
   },
   arcProgressInfoText: {
-    fontSize: 14,
-    color: '#333',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
-    marginVertical: 1,
-    marginTop: 6,
+    fontSize: 12,
+    color: c.textMuted,
+    fontFamily: t.fontFamily.body,
+    marginVertical: 2,
+    letterSpacing: 1,
   },
   radarChartContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: height * 0.01,
+    paddingVertical: s.cardGap,
+    paddingHorizontal: 6,
   },
   levelBarContainer: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: height * 0.02,
+    paddingVertical: 18,
+    paddingHorizontal: 6,
   },
   swipeableCardScrollView: {
     width: '100%',
   },
   swipeableCardContent: {
     alignItems: 'center',
+    paddingHorizontal: 0,
   },
   swipeableCardPage: {
     width: width - (width * 0.04 * 2),
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 240,
+    paddingHorizontal: s.cardPadding,
+    paddingVertical: 6,
+    minHeight: 260,
   },
   pageIndicatorContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: height * 0.01,
-    gap: 8,
+    marginTop: 6,
+    gap: 6,
   },
   pageIndicatorDot: {
-    width: 6,
-    height: 6,
+    width: 5,
+    height: 5,
     borderRadius: 3,
-    backgroundColor: '#D0D0D0',
+    backgroundColor: c.border,
+    opacity: 0.9,
   },
   pageIndicatorDotActive: {
-    backgroundColor: '#FC9B33',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    backgroundColor: c.primary,
+    width: 18,
+    height: 5,
+    borderRadius: 3,
+    opacity: 1,
   },
   // 卡片式功能入口区样式
   featureGridBg: {

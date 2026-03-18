@@ -23,7 +23,6 @@ import {
   typography as t
 } from '../../constants/designTokens';
 import { recipes } from '../../constants/recipes';
-import { Header } from './Header';
 
 let Audio: any = null;
 
@@ -290,13 +289,33 @@ export const WordPreview: React.FC<WordPreviewProps> = ({ logId, words, onBackPr
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <Header 
-        title="仝文馆"
-        showBackButton={true}
-        showNotificationButton={false}
-        onBackPress={handleBackPress}
-      />
+      {/* Header - brand style aligned with MainPage / Words, with back button */}
+      <View
+        style={[
+          styles.headerWrap,
+          { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border },
+        ]}
+      >
+        <View style={styles.headerLeft}>
+          <TouchableOpacity
+            onPress={handleBackPress}
+            style={styles.backButton}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="arrow-back" size={24} color={c.primary} />
+          </TouchableOpacity>
+
+          <View>
+            <View style={styles.headerTitleRow}>
+              <Text style={styles.headerTitle}>仝文馆</Text>
+              <Text style={styles.headerSubtitle}>— 沉浸语境，词自成章</Text>
+            </View>
+            <Text style={styles.headerBrand}>VenTong</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.headerDivider} />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Section: New Academic Terms */}
@@ -408,6 +427,56 @@ export const WordPreview: React.FC<WordPreviewProps> = ({ logId, words, onBackPr
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: s.headerPaddingHorizontal,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 12,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: t.fontWeight.bold,
+    color: c.primary,
+    fontFamily: t.fontFamily.serifChinese,
+    marginRight: 4,
+  },
+  headerSubtitle: {
+    fontSize: 10,
+    fontWeight: t.fontWeight.bold,
+    color: c.accent,
+    letterSpacing: 2,
+    fontFamily: t.fontFamily.body,
+  },
+  headerBrand: {
+    fontSize: 11,
+    fontWeight: t.fontWeight.bold,
+    color: c.accent,
+    letterSpacing: 2,
+    marginTop: 2,
+  },
+  headerDivider: {
+    width: 32,
+    height: 1,
+    backgroundColor: c.accent,
+    opacity: 0.3,
+    marginTop: 6,
+    marginLeft: s.headerPaddingHorizontal + 8,
   },
   scrollView: {
     flex: 1,
