@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, Platform, TouchableOpacity } from 'react-native';
-import { TextInput, Button, Text } from 'react-native-paper';
-import { useRouter } from 'expo-router';
-import { useSelector } from 'react-redux';
 import { SmsApi } from '@data/api/SmsApi';
-import { useTheme } from '@hooks/useTheme';
 import { RootState } from '@data/repository/store';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@hooks/useTheme';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Dimensions, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 import {
   designTokensColors,
   radius,
@@ -87,12 +87,15 @@ export default function ChangePhoneScreen() {
         onPress={() => router.back()}
         style={styles.backArrowAbs}
         activeOpacity={0.7}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
       >
         <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
       </TouchableOpacity>
 
-      <View style={[styles.headerWrap, { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border }]}>
+      <View
+        pointerEvents="box-none"
+        style={[styles.headerWrap, { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border }]}
+      >
         <View style={styles.backBtnPlaceholder} />
         <View style={styles.headerTitleWrap}>
           <Text style={styles.headerTitle}>修改手机号</Text>
@@ -142,16 +145,6 @@ export default function ChangePhoneScreen() {
             >
               发送验证码
             </Button>
-
-            <Button
-              mode="text"
-              onPress={() => router.back()}
-              style={styles.secondaryBackBtn}
-              labelStyle={styles.secondaryBackLabel}
-              disabled={loading}
-            >
-              返回上一页
-            </Button>
           </View>
         </View>
       </ScrollView>
@@ -161,7 +154,17 @@ export default function ChangePhoneScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  backArrowAbs: { position: 'absolute', left: 16, top: 32, zIndex: 10 },
+  backArrowAbs: {
+    position: 'absolute',
+    left: 16,
+    top: 32,
+    zIndex: 50,
+    elevation: 50,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -261,12 +264,5 @@ const styles = StyleSheet.create({
     letterSpacing: t.letterSpacing.buttonPrimary,
     fontFamily: t.fontFamily.body,
     fontWeight: t.fontWeight.semibold,
-  },
-
-  secondaryBackBtn: { marginTop: 10, alignSelf: 'center' },
-  secondaryBackLabel: {
-    color: c.textMuted,
-    fontSize: 11,
-    fontFamily: t.fontFamily.body,
   },
 });
