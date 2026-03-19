@@ -19,7 +19,6 @@ import { recipes } from '../../constants/recipes';
 import { finishStudy } from '../../data/api/FinishStudyApi';
 import type { RootState } from '../../data/repository/store';
 import CongratulationsBottomSheet from '../components/CongratulationsBottomSheet';
-import { DropdownMenu } from '../components/DropdownMenu';
 
 const { width, height } = Dimensions.get('window');
 const c = designTokensColors;
@@ -68,9 +67,6 @@ const MainPage = () => {
   const segments = useSegments();
   // Debug: log when MainPage is mounted and what the current route segments are
   console.log('[MainPage] Component mounted. Segments:', segments);
-  // Add back missing useState hooks for dropdown and button position
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   // State for the early finish confirmation modal
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
@@ -155,25 +151,6 @@ const MainPage = () => {
     router.push('/MyNotes');
   };
 
-  const handleHamburgerPress = () => {
-    // 计算汉堡菜单按钮的位置
-    // Header 高度是 70，SafeArea 顶部偏移通常是 44-50 (iOS) 或 0 (Android)
-    // 按钮在 Header 右侧，Y 位置应该是 Header 的中间位置
-    // 菜单会显示在 buttonPosition.y + buttonPosition.height + 8，所以需要确保菜单在 Header 下方
-    const headerHeight = 70;
-    const safeAreaTop = Platform.OS === 'ios' ? 44 : 0; // iOS SafeArea 顶部偏移
-    const headerBottom = safeAreaTop + headerHeight; // Header 底部位置
-    // 按钮 Y 位置：Header 中间减去按钮高度的一半，这样菜单会在 Header 下方
-    const buttonY = safeAreaTop + headerHeight / 2 - 20; // Header 中间减去按钮高度的一半 (40/2=20)
-    
-    setButtonPosition({
-      x: width - 50,
-      y: buttonY,
-      width: 40,
-      height: 40
-    });
-    setShowDropdown(true);
-  };
   const handleArticlePress = (articleId: string) => {
     console.log('[MainPage] Navigating to PassageMain with sessionId:', articleId);
     router.push({
@@ -232,7 +209,10 @@ const MainPage = () => {
           <Text style={styles.headerSubtitleSmall}>VenTong</Text>
           <View style={styles.headerDividerSmall} />
         </View>
-        <TouchableOpacity style={styles.headerMenuBtn} onPress={handleHamburgerPress}>
+        <TouchableOpacity
+          style={styles.headerMenuBtn}
+          onPress={handleHistoryPress}
+        >
           <Ionicons name="menu" size={24} color={c.primary} />
         </TouchableOpacity>
       </View>
@@ -431,15 +411,6 @@ const MainPage = () => {
         )} */}
       </ScrollView>
 
-      {/* DropdownMenu */}
-      <DropdownMenu
-        visible={showDropdown}
-        onClose={() => setShowDropdown(false)}
-        onHistoryPress={handleHistoryPress}
-        onFavoritesPress={handleFavoritesPress}
-        onNotesPress={handleNotesPress}
-        buttonPosition={buttonPosition}
-      />
       {/* Early finish confirmation modal */}
       <Modal
         visible={showFinishConfirm}
@@ -531,7 +502,11 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   headerMenuBtn: {
-    padding: 8,
+    width: 44,
+    height: 44,
+    padding: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   progressLabelLarge: {
     fontSize: 13,

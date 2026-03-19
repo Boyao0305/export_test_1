@@ -113,10 +113,6 @@ export default function ChangeDailyGoalPage() {
 
   return (
     <SafeAreaView style={[dg.screen, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <TouchableOpacity onPress={handleBackPress} style={{ position: 'absolute', left: 16, top: 32, zIndex: 10 }}>
-        <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
-      </TouchableOpacity>
-
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         <View style={dg.header}>
           <Text style={dg.headerTitle}>设定您的每日学业目标</Text>
@@ -143,6 +139,25 @@ export default function ChangeDailyGoalPage() {
           <Text style={dg.footerQuote}>Veni, vidi, vici.</Text>
         </View>
       </ScrollView>
+
+      <TouchableOpacity
+        onPress={handleBackPress}
+        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        style={{
+          position: 'absolute',
+          left: 16,
+          top: 32,
+          width: 44,
+          height: 44,
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 50,
+          elevation: 50,
+        }}
+        accessibilityRole="button"
+      >
+        <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
+      </TouchableOpacity>
 
       {isSubmitting && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.7)', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>

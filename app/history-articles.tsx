@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Platform,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -18,7 +17,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../data/repository/store';
 import { fetchAllArticles } from '../data/usecase/AllArticlesUseCase';
 import { useTheme } from '../hooks/useTheme';
-import { Header } from './components/Header';
+import { designTokensColors, radius, shadows, spacing, typography } from '../constants/designTokens';
+
+const c = designTokensColors;
+const r = radius;
+const sh = shadows;
+const s = spacing;
+const t = typography;
 
 const HistoryArticles: React.FC = () => {
   const { theme } = useTheme();
@@ -109,7 +114,7 @@ const HistoryArticles: React.FC = () => {
             {item.english_title || item.chinese_title || '无标题'}
           </Text>
           <View style={[styles.statusBadge, { 
-            backgroundColor: isCompleted ? '#4CAF50' : '#FF9800' 
+            backgroundColor: isCompleted ? c.wordCardTapBg : c.bgCream
           }]}>
             <Text style={styles.statusText}>
               {isCompleted ? '已完成' : '进行中'}
@@ -150,37 +155,55 @@ const HistoryArticles: React.FC = () => {
   // 排序按钮组件
   const sortButton = (
     <TouchableOpacity
-      style={styles.sortButton}
+      style={styles.headerIconButton}
       onPress={toggleSortOrder}
       activeOpacity={0.7}
     >
       <Ionicons 
         name={sortOrder === 'asc' ? 'arrow-up' : 'arrow-down'} 
-        size={24} 
-        color={theme.colors.onSurface} 
+        size={24}
+        color={theme.colors.primary}
       />
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Header
-        title="历史文章"
-        showBackButton={true}
-        showMenuButton={false}
-        showNotificationButton={false}
-        customRightComponent={sortButton}
-      />
+      <View
+        style={[
+          styles.headerSection,
+          { backgroundColor: theme.colors.background, borderBottomColor: theme.colors.border },
+        ]}
+      >
+        <View style={styles.headerWrap}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="返回"
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+            style={styles.headerIconButton}
+          >
+            <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
+          </TouchableOpacity>
+
+          <View style={styles.headerTitleWrap}>
+            <Text style={[styles.headerTitle, { color: theme.colors.primary }]}>历史文章</Text>
+          </View>
+
+          {sortButton}
+        </View>
+        <View style={[styles.headerDivider, { backgroundColor: theme.colors.border }]} />
+      </View>
       <View style={styles.content}>
         {loading && !refreshing ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
-            <Text style={[styles.loadingText, { color: theme.colors.onSurface }]}>加载中...</Text>
+            <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>加载中...</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
             <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
-            <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>{error}</Text>
+            <Text style={[styles.errorText, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
             <TouchableOpacity 
               style={[styles.retryButton, { backgroundColor: theme.colors.primary }]} 
               onPress={() => loadArticles()}
@@ -228,125 +251,164 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerSection: {
+    paddingTop: s.headerPaddingVertical + 10,
+  },
+  headerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: s.headerPaddingHorizontal,
+    paddingBottom: s.headerPaddingVertical + 8,
+    minHeight: 74,
+  },
+  headerDivider: {
+    height: StyleSheet.hairlineWidth,
+  },
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleWrap: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  headerTitle: {
+    fontSize: 21,
+    letterSpacing: 0.4,
+    fontFamily: t.fontFamily.body,
+    fontWeight: t.fontWeight.bold,
+    color: c.textMain,
+  },
   content: {
     flex: 1,
   },
   listContainer: {
-    padding: 16,
+    paddingHorizontal: s.pageHorizontalWide,
+    paddingTop: s.sectionVertical,
+    paddingBottom: s.sectionVerticalLarge,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: s.pageHorizontalWide,
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: 12,
+    fontSize: 12,
+    fontFamily: t.fontFamily.body,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: s.pageHorizontalWide,
   },
   errorText: {
-    fontSize: 16,
+    fontSize: 13,
     textAlign: 'center',
-    marginVertical: 16,
+    marginVertical: 12,
+    fontFamily: t.fontFamily.body,
+    lineHeight: 18,
   },
   retryButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: r.button,
+    ...sh.button,
   },
   retryButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontSize: 12,
+    fontWeight: t.fontWeight.semibold,
+    fontFamily: t.fontFamily.body,
+    letterSpacing: t.letterSpacing.buttonPrimary,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: s.pageHorizontalWide,
+    paddingBottom: s.sectionVerticalLarge,
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
+    fontSize: 16,
+    fontWeight: t.fontWeight.semibold,
+    marginTop: 12,
     textAlign: 'center',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontFamily: t.fontFamily.body,
   },
   emptySubText: {
-    fontSize: 14,
-    marginTop: 8,
+    fontSize: 12,
+    marginTop: 6,
     textAlign: 'center',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontFamily: t.fontFamily.body,
+    lineHeight: 18,
   },
   articleCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: s.cardGap,
+    borderRadius: r.cardLarge,
+    borderWidth: 1,
+    borderColor: c.border,
+    ...sh.card,
   },
   articleHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   articleTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: t.fontWeight.semibold,
     flex: 1,
     marginRight: 12,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontFamily: t.fontFamily.serif,
+    lineHeight: 22,
   },
   articleSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     marginBottom: 8,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontFamily: t.fontFamily.body,
+    lineHeight: 18,
   },
   statusBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 3,
+    borderRadius: r.pill,
+    borderWidth: 1,
+    borderColor: c.border,
   },
   statusText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontSize: 10,
+    color: c.textMain,
+    fontWeight: t.fontWeight.medium,
+    fontFamily: t.fontFamily.body,
   },
   articleDate: {
-    fontSize: 14,
-    marginBottom: 12,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
+    fontSize: 11,
+    marginBottom: 10,
+    fontFamily: t.fontFamily.body,
   },
   articleStats: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    gap: 16,
+    gap: 14,
+    flexWrap: 'wrap',
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statText: {
-    fontSize: 12,
+    fontSize: 11,
     marginLeft: 4,
-    fontFamily: Platform.select({ ios: 'Inter', android: 'sans-serif' }),
-  },
-  sortButton: {
-    padding: 8,
+    fontFamily: t.fontFamily.body,
   },
 });
 
