@@ -70,6 +70,7 @@ const MainPage = () => {
   // State for the early finish confirmation modal
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [activeRecommendationIndex, setActiveRecommendationIndex] = useState(0);
 
   // Use the new computed values from useDailyLearningLogs
   const {
@@ -181,6 +182,15 @@ const MainPage = () => {
 
   // Use forced progress if early finish was confirmed
   const displayProgress = forceFullProgress ? 1 : progress;
+  const recommendationCardWidth = width - s.pageHorizontal * 2;
+  const recommendationCardGap = s.cardGap;
+  const recommendationSnapInterval = recommendationCardWidth + recommendationCardGap;
+
+  useEffect(() => {
+    if (activeRecommendationIndex >= unlearnedLogs.length) {
+      setActiveRecommendationIndex(0);
+    }
+  }, [unlearnedLogs.length, activeRecommendationIndex]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -286,45 +296,71 @@ const MainPage = () => {
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             ) : (
-              unlearnedLogs.map((log: any, index: number) => {
-                const isFirst = index === 0;
-                const cardStyle = isFirst ? recipes.card.recommendationActive : recipes.card.recommendation;
-                return (
-                  <View key={log.id} style={[cardStyle, styles.logCardLayout]}>
-                    <TouchableOpacity
-                      style={styles.logCardTouchable}
-                      onPress={() => handleLogPress(Number(log.id), log.daily_new_word)}
-                      activeOpacity={1}
-                    >
-                      <View style={styles.logContent}>
-                        <View style={styles.logMetaRow}>
-                          <View style={recipes.badge.topicMuted}>
-                            <Text style={recipes.badge.topicMutedText}>{log.tag || '综合'}</Text>
+              <ScrollView
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                pagingEnabled={false}
+                snapToInterval={recommendationSnapInterval}
+                snapToAlignment="start"
+                decelerationRate="fast"
+                disableIntervalMomentum
+                onMomentumScrollEnd={(event) => {
+                  const offsetX = event.nativeEvent.contentOffset.x;
+                  const nextIndex = Math.round(offsetX / recommendationSnapInterval);
+                  const safeIndex = Math.max(0, Math.min(nextIndex, unlearnedLogs.length - 1));
+                  setActiveRecommendationIndex(safeIndex);
+                }}
+                contentContainerStyle={styles.dailyLogsScrollContent}
+              >
+                {unlearnedLogs.map((log: any) => {
+                  return (
+                    <View key={log.id} style={[recipes.card.recommendationActive, styles.logCardLayout, { width: recommendationCardWidth }]}>
+                      <TouchableOpacity
+                        style={styles.logCardTouchable}
+                        onPress={() => handleLogPress(Number(log.id), log.daily_new_word)}
+                        activeOpacity={1}
+                      >
+                        <View style={styles.logContent}>
+                          <View style={styles.logMetaRow}>
+                            <View style={recipes.badge.topicMuted}>
+                              <Text style={recipes.badge.topicMutedText}>{log.tag || '综合'}</Text>
+                            </View>
+                          </View>
+                          <Text style={styles.logTitle}>{log.english_title}</Text>
+                          {(log.chinese_title != null && log.chinese_title !== '') && (
+                            <Text style={styles.logSubtitle} numberOfLines={2}>{log.chinese_title}</Text>
+                          )}
+                          <View style={styles.logWordsRow}>
+                            <Text style={styles.logWords}>
+                              词汇：{(log.daily_new_words ?? log.daily_new_word ?? []).length} 新词
+                            </Text>
+                            <Text style={styles.logWords}>  等级：{log.CEFR || '—'}</Text>
                           </View>
                         </View>
-                        <Text style={styles.logTitle}>{log.english_title}</Text>
-                        {(log.chinese_title != null && log.chinese_title !== '') && (
-                          <Text style={styles.logSubtitle} numberOfLines={2}>{log.chinese_title}</Text>
-                        )}
-                        <View style={styles.logWordsRow}>
-                          <Text style={styles.logWords}>
-                            词汇：{(log.daily_new_words ?? log.daily_new_word ?? []).length} 新词
-                          </Text>
-                          <Text style={styles.logWords}>  等级：{log.CEFR || '—'}</Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                    {isFirst && (
+                      </TouchableOpacity>
                       <TouchableOpacity
                         style={[recipes.button.primaryCta, styles.commenceBtn]}
                         onPress={() => handleLogPress(Number(log.id), log.daily_new_word)}
                       >
                         <Text style={recipes.button.primaryCtaText}>开始阅读</Text>
                       </TouchableOpacity>
-                    )}
-                  </View>
-                );
-              })
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            )}
+            {unlearnedLogs.length > 1 && (
+              <View style={styles.recommendationDotsWrap}>
+                {unlearnedLogs.map((log: any, index: number) => (
+                  <View
+                    key={`dot-${log.id}`}
+                    style={[
+                      styles.recommendationDot,
+                      index === activeRecommendationIndex && styles.recommendationDotActive,
+                    ]}
+                  />
+                ))}
+              </View>
             )}
           </View>
         )}
@@ -742,11 +778,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   dailyLogsSection: {
-    marginHorizontal: s.pageHorizontal,
     marginBottom: s.sectionVertical,
   },
+  dailyLogsScrollContent: {
+    paddingTop: s.cardGap,
+    paddingRight: s.cardGap,
+  },
   logCardLayout: {
-    marginBottom: s.cardGap,
+    marginRight: s.cardGap,
   },
   logContent: {
     flex: 1,
@@ -793,6 +832,25 @@ const styles = StyleSheet.create({
     fontSize: t.fontSize.bodyMeta,
     color: c.primary,
     fontFamily: t.fontFamily.body,
+  },
+  recommendationDotsWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: s.cardGap,
+  },
+  recommendationDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: c.border,
+    opacity: 0.9,
+  },
+  recommendationDotActive: {
+    width: 16,
+    borderRadius: 999,
+    backgroundColor: c.primary,
   },
   testSection: {
     marginHorizontal: s.pageHorizontal,

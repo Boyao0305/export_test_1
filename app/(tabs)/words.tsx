@@ -42,10 +42,6 @@ export default function WordsPage() {
   // Accordion state: store expanded article ids
   const [expandedArticles, setExpandedArticles] = useState<string[]>([]);
   
-  // Swipeable card page state
-  const [currentPage, setCurrentPage] = useState(0);
-  const [cardWidth, setCardWidth] = useState(width - (width * 0.04 * 2));
-
   // 默认全部展开：每次 articles 变化时自动展开所有 article
   useEffect(() => {
     if (articles.length > 0) {
@@ -269,77 +265,28 @@ export default function WordsPage() {
               <Text style={styles.titleText}>Day Day up</Text>
               <Text style={styles.subtitleText}>每日进步</Text>
             </View>
-            {/* Swipeable card container */}
-            <View 
-              style={styles.dailyProgressSection}
-              onLayout={(event) => {
-                const { width: layoutWidth } = event.nativeEvent.layout;
-                setCardWidth(layoutWidth);
-              }}
-            >
-              <ScrollView
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                style={styles.swipeableCardScrollView}
-                contentContainerStyle={styles.swipeableCardContent}
-                onMomentumScrollEnd={(event) => {
-                  if (cardWidth > 0) {
-                    const pageIndex = Math.round(
-                      event.nativeEvent.contentOffset.x / cardWidth
-                    );
-                    setCurrentPage(pageIndex);
-                  }
-                }}
-              >
-                {/* Page 1: Arc progress bar */}
-                <View style={styles.swipeableCardPage}>
-                  <View style={styles.arcProgressContainer}>
-                    <AnimatedCircularProgress
-                      size={180}
-                      width={16}
-                      fill={learningProportion * 100}
-                      arcSweepAngle={270}
-                      rotation={225}
-                      lineCap="round"
-                      tintColor={c.accent}
-                      backgroundColor={c.progressBg}
-                      children={() => (
-                        <Text style={styles.arcProgressPercentText}>{formatPercent(learningProportion)}</Text>
-                      )}
-                    />
-                  </View>
-                  {/* Progression and word book name */}
-                  <View style={styles.arcProgressInfoContainer}>
-                    <Text style={styles.arcProgressInfoText}>已学{progression}个单词</Text>
-                    <Text style={styles.arcProgressInfoText}>{wordBookName}</Text>
-                  </View>
+            <View style={styles.dailyProgressSection}>
+              <View style={styles.swipeableCardPage}>
+                <View style={styles.arcProgressContainer}>
+                  <AnimatedCircularProgress
+                    size={180}
+                    width={16}
+                    fill={learningProportion * 100}
+                    arcSweepAngle={270}
+                    rotation={225}
+                    lineCap="round"
+                    tintColor={c.accent}
+                    backgroundColor={c.progressBg}
+                    children={() => (
+                      <Text style={styles.arcProgressPercentText}>{formatPercent(learningProportion)}</Text>
+                    )}
+                  />
                 </View>
-                
-                {/* Page 2: Overall Level Bar */}
-                <View style={styles.swipeableCardPage}>
-                  <View style={styles.levelBarContainer}>
-                    <LevelBar 
-                      level={overallLevel} 
-                      label="整体水平"
-                      showLabel={true}
-                    />
-                  </View>
+                {/* Progression and word book name */}
+                <View style={styles.arcProgressInfoContainer}>
+                  <Text style={styles.arcProgressInfoText}>已学{progression}个单词</Text>
+                  <Text style={styles.arcProgressInfoText}>{wordBookName}</Text>
                 </View>
-                
-                {/* Page 3: Radar Chart */}
-                <View style={styles.swipeableCardPage}>
-                  <View style={styles.radarChartContainer}>
-                    <RadarChart data={radarData} size={250} />
-                  </View>
-                </View>
-              </ScrollView>
-              
-              {/* Page indicator dots */}
-              <View style={styles.pageIndicatorContainer}>
-                <View style={[styles.pageIndicatorDot, currentPage === 0 && styles.pageIndicatorDotActive]} />
-                <View style={[styles.pageIndicatorDot, currentPage === 1 && styles.pageIndicatorDotActive]} />
-                <View style={[styles.pageIndicatorDot, currentPage === 2 && styles.pageIndicatorDotActive]} />
               </View>
             </View>
           </>
